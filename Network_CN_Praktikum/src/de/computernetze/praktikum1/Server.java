@@ -65,6 +65,9 @@ public class Server {
 					continue;
 				}
 				
+				// Count number of words
+				System.out.println(finStr.split(" ").length);
+				
 				//socket.send(packet);
 				createServerResponse(address, port, finStr);
 				
