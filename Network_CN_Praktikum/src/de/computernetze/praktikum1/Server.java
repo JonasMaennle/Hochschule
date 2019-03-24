@@ -56,7 +56,6 @@ public class Server {
 						finStr += received.charAt(i);
 					}
 				}
-				System.out.println("Received: " + finStr);
 				
 				// stop if message = 'Exit'
 				if(finStr.equals("Exit"))
