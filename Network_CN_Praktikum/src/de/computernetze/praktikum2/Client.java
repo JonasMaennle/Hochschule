@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class Client {
 	
 	private final static int PORT = 8888;
-	private final static String TARGET_IP = "192.168.2.139";
+	private final static String TARGET_IP = "141.79.51.46";
 	
 	private Scanner sc;
 	private BufferedReader reader;
