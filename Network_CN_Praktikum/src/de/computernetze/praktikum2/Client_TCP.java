@@ -11,10 +11,10 @@ import java.util.Scanner;
  * @version 1.0
  */
 
-public class Client {
+public class Client_TCP {
 	
-	private final static int PORT = 8888;
-	private final static String TARGET_IP = "141.79.51.46";
+	private final static int PORT = 55123;
+	private static String TARGET_IP = "";
 	
 	private Scanner sc;
 	private BufferedReader reader;
@@ -24,7 +24,7 @@ public class Client {
 
 	public static void main(String[] args) 
 	{
-		Client client = new Client();
+		Client_TCP client = new Client_TCP();
 		client.run();
 	}
 	
@@ -32,9 +32,12 @@ public class Client {
 	private void run()
 	{
 		System.out.println("Client gestartet...");
-		sc = new Scanner(System.in);
-		setupConnection(TARGET_IP, PORT);
 		
+		sc = new Scanner(System.in);
+		System.out.print("Bitte die Server IP eingeben: ");
+		TARGET_IP = sc.nextLine();
+		setupConnection(TARGET_IP, PORT);
+		System.out.println("");
 		Thread readerThread = new Thread(new MessageReceiver());
 		readerThread.start();
 		

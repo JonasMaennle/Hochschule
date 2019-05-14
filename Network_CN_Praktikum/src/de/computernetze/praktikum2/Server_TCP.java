@@ -13,9 +13,9 @@ import java.util.Iterator;
  * @version 1.0
  */
 
-public class Server{
+public class Server_TCP{
 
-	private final static int PORT = 8888;
+	private final static int PORT = 55123;
 	
 	private ServerSocket serverSock;
 	private Socket clientSocket;
@@ -25,7 +25,7 @@ public class Server{
 	
 	public static void main(String[] args) 
 	{
-		Server server = new Server();
+		Server_TCP server = new Server_TCP();
 		server.run(PORT);
 	}
 	
