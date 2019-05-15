@@ -1,12 +1,9 @@
 package de.computernetze.praktikum2;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * @author Jonas Männle
@@ -19,31 +16,22 @@ public class Server_TCP{
 	
 	private ServerSocket serverSock;
 	private Socket clientSocket;
-	private PrintWriter writer;
-	private InputStreamReader inputReader;
-	private ArrayList<PrintWriter> clientAusgabeStrom;
+	private TestObject testee;
 	
-	public static void main(String[] args) 
-	{
+	public static void main(String[] args) {
 		Server_TCP server = new Server_TCP();
 		server.run(PORT);
 	}
 	
 	// setup connection
-	public void run(int port)
-	{
+	public void run(int port){
 		System.out.println("Server gestartet...");
-		clientAusgabeStrom = new ArrayList<PrintWriter>();
 		try {
 			serverSock = new ServerSocket(port);
 			
-			while(true)
-			{
+			while(true){
 			// wartet bis sich Client verbindet
 			clientSocket = serverSock.accept();
-			writer = new PrintWriter(clientSocket.getOutputStream());
-			clientAusgabeStrom.add(writer);
-			
 			Thread t= new Thread(new ClientHandler(clientSocket));
 			t.start();
 			}
@@ -51,53 +39,41 @@ public class Server_TCP{
 			e.printStackTrace();
 		}
 	}
-	
-	// send message to client
-	public void sendMessageBack(String nachricht)
-	{
-		Iterator<PrintWriter> it = clientAusgabeStrom.iterator();
-		String send;
-		while(it.hasNext())
-		{
-			try {
-				send = nachricht;
-				PrintWriter writer = (PrintWriter) it.next();
-				writer.println(send);
-				writer.flush();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
-	private class ClientHandler implements Runnable
-	{
-		BufferedReader reader;
+	private class ClientHandler implements Runnable{
 		Socket sock;
+		ObjectInputStream in_stream;
+		ObjectOutputStream os_stream;
 		
-		public ClientHandler(Socket clientSocket)
-		{
+		public ClientHandler(Socket clientSocket){
 			try {
 				sock = clientSocket;
-				inputReader = new InputStreamReader(sock.getInputStream());
-				reader = new BufferedReader(inputReader);
-				
+				in_stream = new ObjectInputStream(sock.getInputStream());
+				os_stream = new ObjectOutputStream(sock.getOutputStream());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		
 		// receive message from client
-		public void run() 
-		{
-			String nachricht;
+		public void run() {
+			Object o;
 			try {
-				while((nachricht = reader.readLine()) != null)
-				{
-					System.out.println("gelesen: " + nachricht);
-					
-					sendMessageBack(nachricht);
+				while((o = in_stream.readObject()) != null){
+					testee = (TestObject)o;
+					System.out.println(testee.getName());
+					sendMessageBack(testee);
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// send message to client
+		private void sendMessageBack(TestObject test){
+			try {
+				os_stream.writeObject(test);
+				os_stream.flush();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

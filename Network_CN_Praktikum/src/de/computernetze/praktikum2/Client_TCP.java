@@ -1,10 +1,8 @@
 package de.computernetze.praktikum2;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 /**
  * @author Jonas Männle
@@ -14,75 +12,69 @@ import java.util.Scanner;
 public class Client_TCP {
 	
 	private final static int PORT = 55123;
-	private static String TARGET_IP = "";
+	private static String TARGET_IP = "localhost";
 	
-	private Scanner sc;
-	private BufferedReader reader;
-	private PrintWriter writer;
 	private Socket sock;
-	private String userInput;
+	private ObjectOutputStream os_stream;
+	private ObjectInputStream in_stream;
+	
+	private boolean running = true;
+	private long t1,t2;
 
-	public static void main(String[] args) 
-	{
+	public static void main(String[] args) {
 		Client_TCP client = new Client_TCP();
 		client.run();
 	}
 	
 	// setup connection
-	private void run()
-	{
-		System.out.println("Client gestartet...");
+	private void run(){
 		
-		sc = new Scanner(System.in);
-		System.out.print("Bitte die Server IP eingeben: ");
-		TARGET_IP = sc.nextLine();
+		System.out.println("Client gestartet...");
 		setupConnection(TARGET_IP, PORT);
-		System.out.println("");
+		
 		Thread readerThread = new Thread(new MessageReceiver());
 		readerThread.start();
 		
-		while(true)
-		{
-			userInput = sc.nextLine();
-			sendMessage(userInput);
+		while(running){
+			// send automated gamestates
+			t1 = System.currentTimeMillis();
+			if(t1 - t2 > 1000) {
+				sendMessage();
+				t2 = t1;
+			}
 		}
 	}
 	
 	// send message to server
-	private void sendMessage(String input)
-	{
+	private void sendMessage(){
 		try {
-			writer.println(input);
-			writer.flush();
+			os_stream.writeObject(new TestObject("hans"));
+			os_stream.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
 	}
 	
-	private void setupConnection(String ip, int port)
-	{
+	private void setupConnection(String ip, int port){
 		try {
 			sock = new Socket(ip, port); // LOKALE IP des Server PC
-			InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());
-			reader = new BufferedReader(streamReader);
-			writer = new PrintWriter(sock.getOutputStream());
-			System.out.print ("Bitte Nachricht eingeben: ");
+			os_stream = new ObjectOutputStream(sock.getOutputStream());
+			in_stream = new ObjectInputStream(sock.getInputStream());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	// receive message from server
-	public class MessageReceiver implements Runnable
-	{
-		String incomingMessage;
-		public void run() 
-		{
+	public class MessageReceiver implements Runnable{
+		String incomingMessage = "hihi";
+		public void run() {
+			Object o;
 			try {
-				while((incomingMessage = reader.readLine()) != null)
+				while((o = in_stream.readObject()) != null && running)
 				{
-					System.out.println("Nachricht von Server: " + incomingMessage + "\n");
-					System.out.print ("Bitte Nachricht eingeben: ");
+					TestObject test = (TestObject)o;
+					System.out.println(test.getName());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
