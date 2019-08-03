@@ -12,7 +12,7 @@ import java.net.Socket;
 public class Client_TCP {
 	
 	private final static int PORT = 55123;
-	private static String TARGET_IP = "localhost";
+	private static String TARGET_IP = "localhost"; //  91.54.117.149 // 192.168.2.104
 	
 	private Socket sock;
 	private ObjectOutputStream os_stream;
@@ -63,6 +63,7 @@ public class Client_TCP {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("setup complete");
 	}
 	
 	// receive message from server

@@ -73,7 +73,7 @@ public class Server_TCP{
 		private void sendMessageBack(TestObject test){
 			try {
 				os_stream.writeObject(test);
-				os_stream.flush();
+				os_stream.reset();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
